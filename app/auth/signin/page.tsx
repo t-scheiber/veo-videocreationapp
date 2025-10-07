@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function SignIn() {
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import VideoGenerator from '@/components/VideoGenerator'
 
