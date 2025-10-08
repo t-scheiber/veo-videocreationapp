@@ -25,7 +25,7 @@ export class VideoProviderService {
 
   constructor() {
     // Initialize providers
-    Object.values(require('./video-providers').VIDEO_PROVIDERS).forEach(provider => {
+    Object.values(require('./video-providers').VIDEO_PROVIDERS).forEach((provider: any) => {
       this.providers.set(provider.id, provider)
     })
   }

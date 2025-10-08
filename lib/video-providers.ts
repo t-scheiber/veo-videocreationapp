@@ -16,6 +16,17 @@ export interface VideoProvider {
   apiEndpoint: string
   requiresAuth: boolean
   authType: 'api_key' | 'oauth' | 'bearer'
+  capabilities: {
+    supportsMultipleVideos: boolean
+    supportsConditioningImage: boolean
+    supportsNegativePrompt: boolean
+    supportsResolution: boolean
+    supportsFPS: boolean
+    maxVideos: number
+    supportedResolutions: string[]
+    supportedFPS: number[]
+    supportedDurations: number[]
+  }
 }
 
 export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
@@ -32,11 +43,22 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
       }
     },
     features: ['Text-to-video', 'Image-to-video', 'High quality', 'Fast generation'],
-    maxDuration: 10,
-    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3'],
+    maxDuration: 8, // Veo 2: 5-8 seconds
+    supportedAspectRatios: ['16:9', '9:16'], // Veo 2: landscape and portrait only
     apiEndpoint: 'https://api.gemini.google.com/v1/video/generate',
     requiresAuth: true,
-    authType: 'api_key'
+    authType: 'api_key',
+    capabilities: {
+      supportsMultipleVideos: false, // Veo 2: single video only
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: false, // Veo 2: no resolution options
+      supportsFPS: false, // Veo 2: no FPS control
+      maxVideos: 1,
+      supportedResolutions: [],
+      supportedFPS: [],
+      supportedDurations: [5, 6, 7, 8] // Veo 2: 5-8 seconds
+    }
   },
   'veo-3': {
     id: 'veo-3',
@@ -51,11 +73,22 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
       }
     },
     features: ['Text-to-video', 'Image-to-video', 'Audio generation', 'Enhanced prompts', 'Advanced features'],
-    maxDuration: 10,
-    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3', '21:9'],
+    maxDuration: 8, // Veo 3: 4, 6, or 8 seconds
+    supportedAspectRatios: ['16:9'], // Veo 3: landscape only
     apiEndpoint: 'https://api.veo3gen.co/api/veo/text-to-video',
     requiresAuth: true,
-    authType: 'api_key'
+    authType: 'api_key',
+    capabilities: {
+      supportsMultipleVideos: false, // Veo 3: single video only
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true, // Veo 3: 720p (default) and 1080p
+      supportsFPS: false, // Veo 3: no FPS control
+      maxVideos: 1,
+      supportedResolutions: ['720p', '1080p'],
+      supportedFPS: [],
+      supportedDurations: [4, 6, 8] // Veo 3: 4, 6, or 8 seconds
+    }
   },
   'runwayml': {
     id: 'runwayml',
@@ -74,7 +107,18 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
     supportedAspectRatios: ['16:9', '9:16', '1:1'],
     apiEndpoint: 'https://api.runwayml.com/v1/image_to_video',
     requiresAuth: true,
-    authType: 'bearer'
+    authType: 'bearer',
+    capabilities: {
+      supportsMultipleVideos: true,
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true,
+      supportsFPS: true,
+      maxVideos: 4,
+      supportedResolutions: ['720p', '1080p', '4K'],
+      supportedFPS: [24, 30, 60],
+      supportedDurations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+    }
   },
   'luma': {
     id: 'luma',
@@ -93,7 +137,18 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
     supportedAspectRatios: ['16:9', '9:16', '1:1'],
     apiEndpoint: 'https://api.lumalabs.ai/dream-machine/v1/generations',
     requiresAuth: true,
-    authType: 'bearer'
+    authType: 'bearer',
+    capabilities: {
+      supportsMultipleVideos: false,
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true,
+      supportsFPS: false,
+      maxVideos: 1,
+      supportedResolutions: ['720p', '1080p'],
+      supportedFPS: [],
+      supportedDurations: [3, 4, 5]
+    }
   },
   'pika': {
     id: 'pika',
@@ -112,7 +167,18 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
     supportedAspectRatios: ['16:9', '9:16', '1:1'],
     apiEndpoint: 'https://api.pika.art/v1/generate',
     requiresAuth: true,
-    authType: 'bearer'
+    authType: 'bearer',
+    capabilities: {
+      supportsMultipleVideos: true,
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true,
+      supportsFPS: true,
+      maxVideos: 3,
+      supportedResolutions: ['720p', '1080p'],
+      supportedFPS: [24, 30],
+      supportedDurations: [3, 4]
+    }
   },
   'stability': {
     id: 'stability',
@@ -131,7 +197,18 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
     supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3'],
     apiEndpoint: 'https://api.stability.ai/v2beta/image-to-video',
     requiresAuth: true,
-    authType: 'bearer'
+    authType: 'bearer',
+    capabilities: {
+      supportsMultipleVideos: true,
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true,
+      supportsFPS: true,
+      maxVideos: 4,
+      supportedResolutions: ['720p', '1080p'],
+      supportedFPS: [24, 30],
+      supportedDurations: [3, 4, 5]
+    }
   },
   'openai-sora': {
     id: 'openai-sora',
@@ -150,7 +227,18 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
     supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3', '21:9'],
     apiEndpoint: 'https://api.openai.com/v1/video/generations',
     requiresAuth: true,
-    authType: 'bearer'
+    authType: 'bearer',
+    capabilities: {
+      supportsMultipleVideos: true,
+      supportsConditioningImage: true,
+      supportsNegativePrompt: true,
+      supportsResolution: true,
+      supportsFPS: true,
+      maxVideos: 4,
+      supportedResolutions: ['720p', '1080p', '4K'],
+      supportedFPS: [24, 30, 60],
+      supportedDurations: [5, 10, 15, 20, 30, 45, 60]
+    }
   }
 }
 

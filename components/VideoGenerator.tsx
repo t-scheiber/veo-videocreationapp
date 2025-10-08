@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSession, signIn } from 'next-auth/react'
 import { getAllProviders, VideoProvider, calculateCost } from '@/lib/video-providers'
 
@@ -27,6 +27,7 @@ export default function VideoGenerator() {
   const [message, setMessage] = useState('')
   const [videos, setVideos] = useState<string[]>([])
   const [providers] = useState<VideoProvider[]>(getAllProviders())
+  const [selectedProvider, setSelectedProvider] = useState<VideoProvider | null>(null)
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -34,6 +35,40 @@ export default function VideoGenerator() {
       setConditioningImage(file)
     }
   }
+
+  // Update selected provider when provider changes
+  React.useEffect(() => {
+    const providerData = providers.find(p => p.id === provider)
+    setSelectedProvider(providerData || null)
+    
+    // Reset values that are not supported by the new provider
+    if (providerData) {
+      if (!providerData.capabilities.supportsMultipleVideos) {
+        setNumberOfVideos(1)
+      } else {
+        setNumberOfVideos(Math.min(numberOfVideos, providerData.capabilities.maxVideos))
+      }
+      
+      if (!providerData.capabilities.supportsConditioningImage) {
+        setConditioningImage(null)
+      }
+      
+      if (!providerData.capabilities.supportsNegativePrompt) {
+        setNegativePrompt('')
+      }
+      
+      // Update aspect ratio if not supported
+      if (!providerData.supportedAspectRatios.includes(aspectRatio)) {
+        setAspectRatio(providerData.supportedAspectRatios[0] || '16:9')
+      }
+      
+      // Update duration if not supported
+      if (providerData.capabilities.supportedDurations.length > 0 && 
+          !providerData.capabilities.supportedDurations.includes(durationSeconds)) {
+        setDurationSeconds(providerData.capabilities.supportedDurations[0])
+      }
+    }
+  }, [provider, providers, numberOfVideos, aspectRatio, durationSeconds])
 
   if (status === 'loading') {
     return (
@@ -118,21 +153,23 @@ export default function VideoGenerator() {
         />
       </div>
 
-      {/* Negative Prompt */}
-      <div className="space-y-3">
-        <label htmlFor="negative-prompt-input" className="text-sm font-semibold text-gray-200 block">
-          Negative Prompt <span className="text-gray-400 font-normal">(Optional)</span>
-        </label>
-        <textarea
-          id="negative-prompt-input"
-          value={negativePrompt}
-          onChange={(e) => setNegativePrompt(e.target.value)}
-          rows={3}
-          className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 resize-none backdrop-blur-sm"
-          placeholder="What you don't want in the video... e.g., 'text, watermarks, blurry, low quality'"
-          aria-label="Video generation negative prompt"
-        />
-      </div>
+      {/* Negative Prompt - Only show if supported */}
+      {selectedProvider?.capabilities.supportsNegativePrompt && (
+        <div className="space-y-3">
+          <label htmlFor="negative-prompt-input" className="text-sm font-semibold text-gray-200 block">
+            Negative Prompt <span className="text-gray-400 font-normal">(Optional)</span>
+          </label>
+          <textarea
+            id="negative-prompt-input"
+            value={negativePrompt}
+            onChange={(e) => setNegativePrompt(e.target.value)}
+            rows={3}
+            className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 resize-none backdrop-blur-sm"
+            placeholder="What you don't want in the video... e.g., 'text, watermarks, blurry, low quality'"
+            aria-label="Video generation negative prompt"
+          />
+        </div>
+      )}
 
       {/* Provider Selection */}
       <div className="space-y-3">
@@ -201,46 +238,51 @@ export default function VideoGenerator() {
 
       {/* Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="space-y-3">
-          <label htmlFor="number-of-videos" className="text-sm font-semibold text-gray-200 block">
-            Number of Videos
-          </label>
-          <div className="relative">
-            <input
-              id="number-of-videos"
-              type="number"
-              min="1"
-              max="4"
-              value={numberOfVideos}
-              onChange={(e) => setNumberOfVideos(parseInt(e.target.value))}
-              className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              aria-label="Number of videos to generate"
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-              <button
-                type="button"
-                onClick={() => setNumberOfVideos(Math.max(1, numberOfVideos - 1))}
-                disabled={numberOfVideos <= 1}
-                className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
-              >
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setNumberOfVideos(Math.min(4, numberOfVideos + 1))}
-                disabled={numberOfVideos >= 4}
-                className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
-              >
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </button>
+        {/* Number of Videos - Only show if supported */}
+        {selectedProvider?.capabilities.supportsMultipleVideos && (
+          <div className="space-y-3">
+            <label htmlFor="number-of-videos" className="text-sm font-semibold text-gray-200 block">
+              Number of Videos
+            </label>
+            <div className="relative">
+              <input
+                id="number-of-videos"
+                type="number"
+                min="1"
+                max={selectedProvider?.capabilities.maxVideos || 4}
+                value={numberOfVideos}
+                onChange={(e) => setNumberOfVideos(parseInt(e.target.value))}
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                aria-label="Number of videos to generate"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={() => setNumberOfVideos(Math.max(1, numberOfVideos - 1))}
+                  disabled={numberOfVideos <= 1}
+                  className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+                >
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNumberOfVideos(Math.min(selectedProvider?.capabilities.maxVideos || 4, numberOfVideos + 1))}
+                  disabled={numberOfVideos >= (selectedProvider?.capabilities.maxVideos || 4)}
+                  className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+                >
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
             </div>
+            <p className="text-xs text-gray-400">
+              Generate 1-{selectedProvider?.capabilities.maxVideos || 4} videos with different variations
+            </p>
           </div>
-          <p className="text-xs text-gray-400">Generate 1-4 videos with different variations</p>
-        </div>
+        )}
         
         <div className="space-y-3">
           <label htmlFor="aspect-ratio" className="text-sm font-semibold text-gray-200 block">
@@ -254,12 +296,16 @@ export default function VideoGenerator() {
               className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
               aria-label="Aspect ratio"
             >
-              <option value="16:9" className="bg-gray-800 text-white">16:9 (Landscape)</option>
-              <option value="21:9" className="bg-gray-800 text-white">21:9 (Cinematic)</option>
-              <option value="9:16" className="bg-gray-800 text-white">9:16 (Portrait)</option>
-              <option value="1:1" className="bg-gray-800 text-white">1:1 (Square)</option>
-              <option value="4:3" className="bg-gray-800 text-white">4:3 (Standard)</option>
-              <option value="3:4" className="bg-gray-800 text-white">3:4 (Vertical)</option>
+              {selectedProvider?.supportedAspectRatios.map((ratio) => (
+                <option key={ratio} value={ratio} className="bg-gray-800 text-white">
+                  {ratio === '16:9' && '16:9 (Landscape)'}
+                  {ratio === '21:9' && '21:9 (Cinematic)'}
+                  {ratio === '9:16' && '9:16 (Portrait)'}
+                  {ratio === '1:1' && '1:1 (Square)'}
+                  {ratio === '4:3' && '4:3 (Standard)'}
+                  {ratio === '3:4' && '3:4 (Vertical)'}
+                </option>
+              ))}
             </select>
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,77 +331,157 @@ export default function VideoGenerator() {
           <label htmlFor="duration-seconds" className="text-sm font-semibold text-gray-200 block">
             Duration
           </label>
-          <div className="relative">
-            <input
-              id="duration-seconds"
-              type="number"
-              min="3"
-              max="10"
-              value={durationSeconds}
-              onChange={(e) => setDurationSeconds(parseInt(e.target.value))}
-              className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              aria-label="Video duration in seconds"
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-              <button
-                type="button"
-                onClick={() => setDurationSeconds(Math.max(3, durationSeconds - 1))}
-                disabled={durationSeconds <= 3}
-                className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+          {selectedProvider?.capabilities.supportedDurations && selectedProvider.capabilities.supportedDurations.length > 0 ? (
+            <div className="relative">
+              <select
+                id="duration-seconds"
+                value={durationSeconds}
+                onChange={(e) => setDurationSeconds(parseInt(e.target.value))}
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+                aria-label="Video duration in seconds"
               >
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                {selectedProvider.capabilities.supportedDurations.map((duration) => (
+                  <option key={duration} value={duration} className="bg-gray-800 text-white">
+                    {duration}s
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDurationSeconds(Math.min(10, durationSeconds + 1))}
-                disabled={durationSeconds >= 10}
-                className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
-              >
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="relative">
+              <input
+                id="duration-seconds"
+                type="number"
+                min="3"
+                max={selectedProvider?.maxDuration || 10}
+                value={durationSeconds}
+                onChange={(e) => setDurationSeconds(parseInt(e.target.value))}
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                aria-label="Video duration in seconds"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={() => setDurationSeconds(Math.max(3, durationSeconds - 1))}
+                  disabled={durationSeconds <= 3}
+                  className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+                >
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDurationSeconds(Math.min(selectedProvider?.maxDuration || 10, durationSeconds + 1))}
+                  disabled={durationSeconds >= (selectedProvider?.maxDuration || 10)}
+                  className="w-6 h-6 rounded-full bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+                >
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-between text-xs text-gray-400">
             <span>3s</span>
             <span className="font-medium text-blue-400">{durationSeconds}s</span>
-            <span>10s</span>
+            <span>{selectedProvider?.maxDuration || 10}s</span>
           </div>
         </div>
         
-        <div className="space-y-3">
-          <label className="text-sm font-semibold text-gray-200 block">
-            Reference Image <span className="text-gray-400 font-normal">(Optional)</span>
-          </label>
-          <div className="relative">
-            <input
-              type="file"
-              id="conditioning-image-input"
-              onChange={handleImageChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              accept="image/*"
-            />
-            <label
-              htmlFor="conditioning-image-input"
-              className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 text-white hover:bg-gray-600/50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm cursor-pointer block text-center border-dashed hover:border-solid"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                <span>Choose Image</span>
-              </div>
+        {/* Reference Image - Only show if supported */}
+        {selectedProvider?.capabilities.supportsConditioningImage && (
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-200 block">
+              Reference Image <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
-          </div>
-          {conditioningImage && (
-            <div className="mt-2 p-2 bg-green-900/20 border border-green-600/30 rounded-lg">
-              <p className="text-xs text-green-400 font-medium">✓ {conditioningImage.name}</p>
+            <div className="relative">
+              <input
+                type="file"
+                id="conditioning-image-input"
+                onChange={handleImageChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                accept="image/*"
+              />
+              <label
+                htmlFor="conditioning-image-input"
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 text-white hover:bg-gray-600/50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm cursor-pointer block text-center border-dashed hover:border-solid"
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Choose Image</span>
+                </div>
+              </label>
             </div>
-          )}
-        </div>
+            {conditioningImage && (
+              <div className="mt-2 p-2 bg-green-900/20 border border-green-600/30 rounded-lg">
+                <p className="text-xs text-green-400 font-medium">✓ {conditioningImage.name}</p>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Resolution - Only show if supported */}
+        {selectedProvider?.capabilities.supportsResolution && selectedProvider?.capabilities.supportedResolutions && selectedProvider.capabilities.supportedResolutions.length > 0 && (
+          <div className="space-y-3">
+            <label htmlFor="resolution" className="text-sm font-semibold text-gray-200 block">
+              Resolution
+            </label>
+            <div className="relative">
+              <select
+                id="resolution"
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+                aria-label="Video resolution"
+              >
+                {selectedProvider.capabilities.supportedResolutions.map((resolution) => (
+                  <option key={resolution} value={resolution} className="bg-gray-800 text-white">
+                    {resolution}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* FPS - Only show if supported */}
+        {selectedProvider?.capabilities.supportsFPS && selectedProvider?.capabilities.supportedFPS && selectedProvider.capabilities.supportedFPS.length > 0 && (
+          <div className="space-y-3">
+            <label htmlFor="fps" className="text-sm font-semibold text-gray-200 block">
+              Frame Rate (FPS)
+            </label>
+            <div className="relative">
+              <select
+                id="fps"
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+                aria-label="Video frame rate"
+              >
+                {selectedProvider.capabilities.supportedFPS.map((fps) => (
+                  <option key={fps} value={fps} className="bg-gray-800 text-white">
+                    {fps} FPS
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Generate Button */}
