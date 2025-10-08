@@ -4,18 +4,41 @@ A comprehensive Next.js application for generating high-quality AI videos for we
 
 ## 🎯 Why I Built This
 
-I was working on multiple web projects and needed high-quality AI-generated videos for hero sections, but existing solutions were either too expensive, limited, or unreliable. So I built my own tool that supports multiple AI video generation providers, giving me flexibility and cost control.
+I was working on multiple web projects and needed high-quality AI-generated videos for hero sections, but existing solutions were either too expensive, limited, or unreliable. So I built my own tool that supports **7 different AI video generation providers** with a **smart, adaptive interface** that gives me:
+
+- **Flexibility**: Choose the best provider for each project's needs and budget
+- **Cost Control**: Compare real-time pricing and use the most cost-effective option
+- **No Confusion**: UI automatically shows only the features each provider actually supports
+- **Future-Proof**: Easy to add new providers as they become available
+- **Professional Results**: Access to the latest models from Google, OpenAI, RunwayML, and more
 
 ## ✨ Features
 
-- **7 AI Video Providers**: Choose from Google Veo 2/3, RunwayML Gen-4, Luma Dream Machine, Pika Labs 2.2, Stability AI, and OpenAI Sora
-- **Cost Comparison**: Real-time cost estimation for each provider
-- **Smart Provider Selection**: Choose the best provider based on your budget and quality needs
-- **Multiple Aspect Ratios**: 16:9, 9:16, 1:1, 4:3, 21:9 support
+### 🎬 **7 AI Video Providers**
+Choose from the best video generation services with **smart capability-based UI**:
+
+- **Google Veo 2.0** - Latest Google model with high quality ($0.35/sec)
+- **VEO3 API** - Advanced features with audio generation ($0.08/sec)  
+- **RunwayML Gen-4** - Professional quality with camera controls ($0.05/sec)
+- **Luma Dream Machine** - Character consistency & realistic physics ($0.02/sec)
+- **Pika Labs 2.2** - Enhanced image integration & faster generation ($0.03/sec)
+- **Stability AI** - Open-source with competitive pricing ($0.01/sec)
+- **OpenAI Sora** - Exceptional quality for complex scenes ($0.10/sec)
+
+### 🧠 **Smart Adaptive Interface**
+- **Dynamic Controls**: UI automatically shows/hides options based on provider capabilities
+- **Auto-Validation**: Values adjust automatically when switching providers
+- **Capability-Aware**: Only shows supported features (aspect ratios, durations, etc.)
+- **Real-time Cost Estimation**: Accurate pricing based on actual provider limits
+
+### 🎯 **Advanced Video Generation**
+- **Multiple Aspect Ratios**: 16:9, 9:16, 1:1, 4:3, 21:9 support (provider-dependent)
 - **Image-to-Video**: Upload reference images for better results
 - **Negative Prompts**: Specify what you don't want in your videos
-- **Batch Generation**: Create multiple video variations
-- **Modern UI**: Beautiful, responsive interface with real-time feedback
+- **Batch Generation**: Create multiple video variations (where supported)
+- **Resolution Control**: 720p, 1080p, 4K options (provider-dependent)
+- **Frame Rate Control**: 24, 30, 60 FPS options (provider-dependent)
+- **Smart Duration Selection**: Dropdown for fixed durations, input for flexible ones
 
 ## 🚀 Quick Start
 
@@ -49,17 +72,29 @@ I was working on multiple web projects and needed high-quality AI-generated vide
 4. **Open your browser:**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 💰 Cost Comparison
+## 💰 Cost Comparison & Capabilities
 
-| Provider | Cost/Second | Best For | Free Tier |
-|----------|-------------|----------|-----------|
-| **Stability AI** | $0.01 | Budget projects | 50s/month |
-| **Luma Dream Machine** | $0.02 | Fast generation | 30s/month |
-| **Pika Labs 2.2** | $0.03 | Creative styles | 20s/month |
-| **RunwayML Gen-4** | $0.05 | Professional quality | 125s/month |
-| **VEO3 API** | $0.08 | Advanced features | 20s/month |
-| **Google Veo 2** | $0.35 | Highest quality | 30s/month |
-| **OpenAI Sora** | $0.10 | Complex scenes | 10s/month |
+| Provider | Cost/Second | Best For | Free Tier | Key Features |
+|----------|-------------|----------|-----------|--------------|
+| **Stability AI** | $0.01 | Budget projects | 50s/month | Open-source, highly customizable |
+| **Luma Dream Machine** | $0.02 | Fast generation | 30s/month | Character consistency, realistic physics |
+| **Pika Labs 2.2** | $0.03 | Creative styles | 20s/month | Enhanced image integration, faster generation |
+| **RunwayML Gen-4** | $0.05 | Professional quality | 125s/month | Camera controls, keyframe controls, style consistency |
+| **VEO3 API** | $0.08 | Advanced features | 20s/month | Audio generation, enhanced prompts, 720p/1080p |
+| **OpenAI Sora** | $0.10 | Complex scenes | 10s/month | Exceptional quality, realistic physics, long-form content |
+| **Google Veo 2** | $0.35 | Highest quality | 30s/month | Latest Google model, high quality output |
+
+### 🎯 **Provider Capabilities Matrix**
+
+| Feature | Veo 2 | Veo 3 | RunwayML | Luma | Pika 2.2 | Stability | Sora |
+|---------|-------|-------|----------|------|----------|-----------|------|
+| **Multiple Videos** | ❌ | ❌ | ✅ (4) | ❌ | ✅ (3) | ✅ (4) | ✅ (4) |
+| **Image-to-Video** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Negative Prompts** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Resolution Options** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **FPS Control** | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Max Duration** | 8s | 8s | 18s | 5s | 4s | 5s | 60s |
+| **Aspect Ratios** | 16:9, 9:16 | 16:9 only | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1, 4:3 | All ratios |
 
 ## 🎬 Perfect for Web Projects
 
@@ -69,6 +104,16 @@ This tool is specifically designed for web developers and designers who need:
 - **Product demos** and showcases
 - **Social media content** for marketing
 - **Prototype videos** for client presentations
+
+### 🧠 **Why the Smart UI Matters**
+
+Unlike other tools that show all options regardless of what actually works, this app:
+
+- **Prevents Frustration**: No more trying features that don't work with your chosen provider
+- **Saves Time**: No need to research each provider's limitations
+- **Reduces Errors**: Invalid combinations are automatically prevented
+- **Improves Results**: You only see options that will actually work
+- **Saves Money**: Accurate cost estimation prevents unexpected charges
 
 ## 🏗️ Project Structure
 
@@ -90,23 +135,37 @@ This tool is specifically designed for web developers and designers who need:
 
 ## 🎯 How to Use
 
-1. **Choose your provider** based on budget and quality needs
-2. **Enter a descriptive prompt** for your video
-3. **Add negative prompts** to avoid unwanted elements
-4. **Select aspect ratio and duration** for your use case
-5. **Upload reference images** for better results (optional)
-6. **Generate multiple variations** to find the perfect video
+### **Smart Provider Selection**
+1. **Choose your provider** - The UI automatically adapts to show only supported features
+2. **See real-time cost estimation** - Get accurate pricing based on your selections
+3. **Understand limitations** - UI clearly shows what each provider can and cannot do
+
+### **Intelligent Video Generation**
+1. **Enter a descriptive prompt** for your video
+2. **Add negative prompts** (if supported by your provider)
+3. **Select aspect ratio and duration** - Only supported options are shown
+4. **Upload reference images** (if supported by your provider)
+5. **Choose resolution and FPS** (if supported by your provider)
+6. **Generate multiple variations** (if supported by your provider)
 7. **Download and use** in your web projects
+
+### **🎨 Smart UI Features**
+- **Dynamic Controls**: Options appear/disappear based on provider capabilities
+- **Auto-Validation**: Invalid selections are automatically corrected
+- **Capability Indicators**: Clear visual cues about what each provider supports
+- **Cost Transparency**: Real-time cost updates as you change settings
 
 ## 🛠️ Technologies Used
 
-- **Next.js 15.5.4** - React framework
-- **React 19** - UI components
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Multi-Provider Architecture** - 7 AI video providers
-- **Real-time Cost Estimation** - Budget control
-- **Modern UI/UX** - Beautiful, responsive design
+- **Next.js 15.5.4** - React framework with App Router
+- **React 19** - Modern UI components with hooks
+- **TypeScript** - Full type safety across all providers
+- **Tailwind CSS** - Responsive, modern styling
+- **Multi-Provider Architecture** - Unified interface for 7 different AI video APIs
+- **Capability-Based UI** - Dynamic controls that adapt to provider limitations
+- **Real-time Cost Estimation** - Accurate pricing based on actual API costs
+- **Smart Validation** - Automatic value adjustment when switching providers
+- **Modern Authentication** - NextAuth.js with Google OAuth
 
 ## 📈 Use Cases
 
