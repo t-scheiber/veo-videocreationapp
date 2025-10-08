@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession, signIn } from 'next-auth/react'
+import { getAllProviders, VideoProvider, calculateCost } from '@/lib/video-providers'
 
 interface VideoGenerationParams {
   prompt: string
@@ -10,6 +11,7 @@ interface VideoGenerationParams {
   aspectRatio: string
   durationSeconds: number
   conditioningImage: { mimeType: string; imageBytes: string } | null
+  provider: string
 }
 
 export default function VideoGenerator() {
@@ -20,9 +22,11 @@ export default function VideoGenerator() {
   const [aspectRatio, setAspectRatio] = useState('16:9')
   const [durationSeconds, setDurationSeconds] = useState(5)
   const [conditioningImage, setConditioningImage] = useState<File | null>(null)
+  const [provider, setProvider] = useState('veo-3')
   const [isGenerating, setIsGenerating] = useState(false)
   const [message, setMessage] = useState('')
   const [videos, setVideos] = useState<string[]>([])
+  const [providers] = useState<VideoProvider[]>(getAllProviders())
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -71,6 +75,7 @@ export default function VideoGenerator() {
       formData.append('numberOfVideos', numberOfVideos.toString())
       formData.append('aspectRatio', aspectRatio)
       formData.append('durationSeconds', durationSeconds.toString())
+      formData.append('provider', provider)
       
       if (conditioningImage) {
         formData.append('conditioningImage', conditioningImage)
@@ -127,6 +132,71 @@ export default function VideoGenerator() {
           placeholder="What you don't want in the video... e.g., 'text, watermarks, blurry, low quality'"
           aria-label="Video generation negative prompt"
         />
+      </div>
+
+      {/* Provider Selection */}
+      <div className="space-y-3">
+        <label htmlFor="provider-selection" className="text-sm font-semibold text-gray-200 block">
+          Video Generation Provider
+        </label>
+        <div className="relative">
+          <select
+            id="provider-selection"
+            value={provider}
+            onChange={(e) => setProvider(e.target.value)}
+            className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+            aria-label="Video generation provider selection"
+          >
+            {providers.map((p) => (
+              <option key={p.id} value={p.id} className="bg-gray-800 text-white">
+                {p.name} - ${p.pricing.costPerSecond.toFixed(2)}/sec
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        {(() => {
+          const selectedProvider = providers.find(p => p.id === provider)
+          if (!selectedProvider) return null
+          
+          const estimatedCost = calculateCost(selectedProvider, durationSeconds * numberOfVideos)
+          
+          return (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-400">{selectedProvider.description}</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  selectedProvider.pricing.costPerSecond <= 0.03 
+                    ? 'bg-green-900/30 text-green-400 border border-green-600/30' 
+                    : selectedProvider.pricing.costPerSecond <= 0.05
+                    ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-600/30'
+                    : 'bg-red-900/30 text-red-400 border border-red-600/30'
+                }`}>
+                  ${selectedProvider.pricing.costPerSecond.toFixed(2)}/sec
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-400">Estimated cost: ${estimatedCost.toFixed(2)}</span>
+                {selectedProvider.pricing.freeTier && (
+                  <span className="text-green-400">
+                    {selectedProvider.pricing.freeTier.description}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {selectedProvider.features.map((feature, index) => (
+                  <span key={index} className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-md">
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
       {/* Settings Grid */}
@@ -298,14 +368,14 @@ export default function VideoGenerator() {
           {isGenerating ? (
             <div className="flex items-center justify-center space-x-2">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>Generating Video...</span>
+              <span>Generating Video with {providers.find(p => p.id === provider)?.name || provider}...</span>
             </div>
           ) : (
             <div className="flex items-center justify-center space-x-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Generate Video</span>
+              <span>Generate Video with {providers.find(p => p.id === provider)?.name || provider}</span>
             </div>
           )}
         </button>

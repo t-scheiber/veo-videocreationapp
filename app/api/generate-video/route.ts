@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { VertexAI } from '@google-cloud/vertexai'
+import { VideoProviderService } from '@/lib/video-provider-service'
 
 const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID || 'your-project-id'
 const GOOGLE_CLOUD_LOCATION = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
@@ -25,72 +25,84 @@ export async function POST(request: NextRequest) {
     const numberOfVideos = parseInt(formData.get('numberOfVideos') as string)
     const aspectRatio = formData.get('aspectRatio') as string
     const durationSeconds = parseInt(formData.get('durationSeconds') as string)
+    const provider = formData.get('provider') as string || 'veo-3'
     const conditioningImageFile = formData.get('conditioningImage') as File | null
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
-    // Check if we have proper authentication setup
-    if (!GOOGLE_CLOUD_PROJECT_ID || GOOGLE_CLOUD_PROJECT_ID === 'your-project-id') {
-      return NextResponse.json({ 
-        error: 'Google Cloud Project ID not configured. Please set GOOGLE_CLOUD_PROJECT_ID in your environment variables.' 
-      }, { status: 500 })
-    }
+    console.log(`Generating video with provider: ${provider}`)
 
-    // Initialize VertexAI with proper authentication
-    const vertexAIConfig: any = {
-      project: GOOGLE_CLOUD_PROJECT_ID,
-      location: GOOGLE_CLOUD_LOCATION,
-    }
+    // Initialize the provider service
+    const providerService = new VideoProviderService()
 
-    // Add authentication method if available
-    if (GOOGLE_APPLICATION_CREDENTIALS) {
-      vertexAIConfig.keyFilename = GOOGLE_APPLICATION_CREDENTIALS
-    }
-
-    const vertexAI = new VertexAI(vertexAIConfig)
-
-    const model = vertexAI.getGenerativeModel({
-      model: 'veo-3.0-generate-preview',
-    })
-
-    const requestData: any = {
+    // Prepare the request data
+    const requestData = {
       prompt,
-      config: {
-        aspect_ratio: aspectRatio,
-        duration: durationSeconds,
-        number_of_videos: numberOfVideos,
-      },
-    }
-
-    if (negativePrompt) {
-      requestData.negativePrompt = negativePrompt
-    }
-
-    if (conditioningImageFile) {
-      const imageBuffer = await conditioningImageFile.arrayBuffer()
-      const imageBase64 = Buffer.from(imageBuffer).toString('base64')
-      requestData.image = {
+      negativePrompt: negativePrompt || undefined,
+      durationSeconds,
+      aspectRatio,
+      numberOfVideos,
+      conditioningImage: conditioningImageFile ? {
         mimeType: conditioningImageFile.type,
-        imageBytes: imageBase64,
-      }
+        imageBytes: Buffer.from(await conditioningImageFile.arrayBuffer()).toString('base64')
+      } : undefined
     }
 
-    const result = await model.generateContent(requestData)
-    const response = result.response
+    // Get the appropriate API key based on provider
+    let apiKey: string | undefined
+    switch (provider) {
+      case 'veo-2':
+        // Veo 2 uses the new Gemini API with API key
+        apiKey = process.env.GOOGLE_API_KEY
+        if (!apiKey) {
+          return NextResponse.json({ 
+            error: 'Google API key required for Veo 2. Please set GOOGLE_API_KEY in your environment variables.' 
+          }, { status: 500 })
+        }
+        break
+      case 'veo-3':
+        // VEO3 uses its own API key
+        apiKey = process.env.VEO3_API_KEY
+        if (!apiKey) {
+          return NextResponse.json({ 
+            error: 'VEO3 API key required. Please set VEO3_API_KEY in your environment variables.' 
+          }, { status: 500 })
+        }
+        break
+      case 'runwayml':
+        apiKey = process.env.RUNWAYML_API_KEY
+        break
+      case 'luma':
+        apiKey = process.env.LUMA_API_KEY
+        break
+      case 'pika':
+        apiKey = process.env.PIKA_API_KEY
+        break
+      case 'stability':
+        apiKey = process.env.STABILITY_API_KEY
+        break
+      case 'openai-sora':
+        apiKey = process.env.OPENAI_API_KEY
+        break
+    }
 
-    if (!response.candidates || response.candidates.length === 0) {
+    // Generate video using the selected provider
+    const result = await providerService.generateVideo(provider, requestData, apiKey)
+
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'No videos generated. Please try again with a simpler prompt.' },
+        { error: result.error || 'Failed to generate video' },
         { status: 400 }
       )
     }
 
-    // Extract video URLs from the response
-    const videos = response.candidates.map((candidate: any) => candidate.content?.parts?.[0]?.text || '').filter(Boolean)
-
-    return NextResponse.json({ videos })
+    return NextResponse.json({ 
+      videos: result.videos,
+      provider: result.provider,
+      cost: result.cost
+    })
   } catch (error) {
     console.error('Error generating video:', error)
     
