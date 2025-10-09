@@ -1,8 +1,16 @@
 {
-  "name": "veo-video-generation-app",
-  "version": "0.1.0",
-  "private": true,
+  "name": "ai-video-generation-app",
+  "version": "1.0.0",
+  "description": "A comprehensive Next.js application for generating high-quality AI videos with multiple providers",
+  "private": false,
+  "license": "MIT",
   "type": "module",
+  "keywords": ["ai", "video", "generation", "nextjs", "veo3", "runwayml", "luma", "openai"],
+  "author": "AI Video Generation App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-video-generation-app.git"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

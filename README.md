@@ -178,8 +178,34 @@ Unlike other tools that show all options regardless of what actually works, this
 
 ## 🤝 Contributing
 
-This project was built to solve a real need for AI video generation in web development. Feel free to fork, modify, and use it for your own projects!
+This project was built to solve a real need for AI video generation in web development. We welcome contributions!
+
+### How to Contribute:
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Commit your changes**: `git commit -m 'Add amazing feature'`
+4. **Push to the branch**: `git push origin feature/amazing-feature`
+5. **Open a Pull Request**
+
+### Development Setup:
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables (see SETUP.md)
+4. Run development server: `npm run dev`
 
 ## 📄 License
 
-MIT License - Use it for your own web projects and commercial applications.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+- ✅ **Free to use** for personal and commercial projects
+- ✅ **Free to modify** and distribute
+- ✅ **Free to sell** products based on this code
+- ✅ **Attribution appreciated** but not required
+- ✅ **No warranty** - use at your own risk
+
+> **Note**: Users are responsible for complying with their chosen AI providers' terms of service when using the APIs.
+
+## 🌟 Star this Repository
+
+If you find this project helpful, please give it a star! It helps others discover the project and shows your support for open-source AI video generation tools.
