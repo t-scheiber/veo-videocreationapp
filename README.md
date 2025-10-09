@@ -4,7 +4,7 @@ A comprehensive Next.js application for generating high-quality AI videos for we
 
 ## 🎯 Why I Built This
 
-I was working on multiple web projects and needed high-quality AI-generated videos for hero sections, but existing solutions were either too expensive, limited, or unreliable. So I built my own tool that supports **7 different AI video generation providers** with a **smart, adaptive interface** that gives me:
+I was working on multiple web projects and needed high-quality AI-generated videos for hero sections, but existing solutions were either too expensive, limited, or unreliable. So I built my own tool that supports **4 different AI video generation providers** with a **smart, adaptive interface** that gives me:
 
 - **Flexibility**: Choose the best provider for each project's needs and budget
 - **Cost Control**: Compare real-time pricing and use the most cost-effective option
@@ -14,16 +14,15 @@ I was working on multiple web projects and needed high-quality AI-generated vide
 
 ## ✨ Features
 
-### 🎬 **7 AI Video Providers**
+### 🎬 **4 AI Video Providers**
 Choose from the best video generation services with **smart capability-based UI**:
 
-- **Google Veo 2.0** - Latest Google model with high quality ($0.35/sec)
-- **VEO3 API** - Advanced features with audio generation ($0.08/sec)  
+- **VEO3 API** - Advanced features with audio generation ($0.08/sec) - **Primary Provider**
 - **RunwayML Gen-4** - Professional quality with camera controls ($0.05/sec)
 - **Luma Dream Machine** - Character consistency & realistic physics ($0.02/sec)
-- **Pika Labs 2.2** - Enhanced image integration & faster generation ($0.03/sec)
-- **Stability AI** - Open-source with competitive pricing ($0.01/sec)
 - **OpenAI Sora** - Exceptional quality for complex scenes ($0.10/sec)
+
+> **Note**: Pika Labs 2.2 is temporarily disabled while awaiting API access approval.
 
 ### 🧠 **Smart Adaptive Interface**
 - **Dynamic Controls**: UI automatically shows/hides options based on provider capabilities
@@ -55,13 +54,13 @@ Choose from the best video generation services with **smart capability-based UI*
    Add your API keys for the providers you want to use:
    ```bash
    # Choose your providers (you don't need all of them)
-   GOOGLE_API_KEY=your-google-api-key-here      # For Veo 2
-   VEO3_API_KEY=your-veo3-api-key-here          # For VEO3
+   VEO3_API_KEY=veo_your-veo3-api-key-here      # For VEO3 (Primary Provider)
    RUNWAYML_API_KEY=your-runwayml-api-key-here  # For RunwayML Gen-4
    LUMA_API_KEY=your-luma-api-key-here           # For Luma Dream Machine
-   PIKA_API_KEY=your-pika-api-key-here           # For Pika Labs 2.2
-   STABILITY_API_KEY=your-stability-api-key-here # For Stability AI
    OPENAI_API_KEY=your-openai-api-key-here      # For OpenAI Sora
+   
+   # Pika Labs 2.2 is temporarily disabled (awaiting API access)
+   # PIKA_API_KEY=your-pika-api-key-here
    ```
 
 3. **Run the development server:**
@@ -76,25 +75,27 @@ Choose from the best video generation services with **smart capability-based UI*
 
 | Provider | Cost/Second | Best For | Free Tier | Key Features |
 |----------|-------------|----------|-----------|--------------|
-| **Stability AI** | $0.01 | Budget projects | 50s/month | Open-source, highly customizable |
 | **Luma Dream Machine** | $0.02 | Fast generation | 30s/month | Character consistency, realistic physics |
-| **Pika Labs 2.2** | $0.03 | Creative styles | 20s/month | Enhanced image integration, faster generation |
 | **RunwayML Gen-4** | $0.05 | Professional quality | 125s/month | Camera controls, keyframe controls, style consistency |
 | **VEO3 API** | $0.08 | Advanced features | 20s/month | Audio generation, enhanced prompts, 720p/1080p |
 | **OpenAI Sora** | $0.10 | Complex scenes | 10s/month | Exceptional quality, realistic physics, long-form content |
-| **Google Veo 2** | $0.35 | Highest quality | 30s/month | Latest Google model, high quality output |
+
+> **Note**: Pika Labs 2.2 ($0.03/sec) is temporarily disabled while awaiting API access approval.
 
 ### 🎯 **Provider Capabilities Matrix**
 
-| Feature | Veo 2 | Veo 3 | RunwayML | Luma | Pika 2.2 | Stability | Sora |
-|---------|-------|-------|----------|------|----------|-----------|------|
-| **Multiple Videos** | ❌ | ❌ | ✅ (4) | ❌ | ✅ (3) | ✅ (4) | ✅ (4) |
-| **Image-to-Video** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Negative Prompts** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Resolution Options** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **FPS Control** | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Max Duration** | 8s | 8s | 18s | 5s | 4s | 5s | 60s |
-| **Aspect Ratios** | 16:9, 9:16 | 16:9 only | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1, 4:3 | All ratios |
+| Feature | VEO3 | RunwayML | Luma | Sora |
+|---------|------|----------|------|------|
+| **Multiple Videos** | ❌ | ✅ (4) | ❌ | ✅ (4) |
+| **Image-to-Video** | ✅ | ✅ | ✅ | ✅ |
+| **Negative Prompts** | ✅ | ✅ | ✅ | ✅ |
+| **Resolution Options** | ✅ | ✅ | ✅ | ✅ |
+| **FPS Control** | ❌ | ✅ | ❌ | ✅ |
+| **Audio Generation** | ✅ | ❌ | ❌ | ❌ |
+| **Max Duration** | 8s | 18s | 5s | 60s |
+| **Aspect Ratios** | 16:9 only | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 | All ratios |
+
+> **Note**: Pika Labs 2.2 is temporarily disabled while awaiting API access approval.
 
 ## 🎬 Perfect for Web Projects
 
@@ -161,7 +162,7 @@ Unlike other tools that show all options regardless of what actually works, this
 - **React 19** - Modern UI components with hooks
 - **TypeScript** - Full type safety across all providers
 - **Tailwind CSS** - Responsive, modern styling
-- **Multi-Provider Architecture** - Unified interface for 7 different AI video APIs
+- **Multi-Provider Architecture** - Unified interface for 4 different AI video APIs
 - **Capability-Based UI** - Dynamic controls that adapt to provider limitations
 - **Real-time Cost Estimation** - Accurate pricing based on actual API costs
 - **Smart Validation** - Automatic value adjustment when switching providers

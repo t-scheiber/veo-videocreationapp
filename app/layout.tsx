@@ -3,8 +3,8 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'Generate videos with Veo',
-  description: 'Generate videos using Google\'s Veo AI model',
+  title: 'Generate Videos with AI',
+  description: 'Generate videos using multiple AI models with advanced features',
   icons: {
     icon: '/icon.svg',
     shortcut: '/icon.svg',

@@ -30,64 +30,34 @@ export interface VideoProvider {
 }
 
 export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
-  'veo-2': {
-    id: 'veo-2',
-    name: 'Google Veo 2.0',
-    description: 'Google\'s latest video generation model with high quality output',
-    pricing: {
-      costPerSecond: 0.35, // Official pricing: $0.35 per second
-      currency: 'USD',
-      freeTier: {
-        seconds: 30,
-        description: '30 seconds free per month'
-      }
-    },
-    features: ['Text-to-video', 'Image-to-video', 'High quality', 'Fast generation'],
-    maxDuration: 8, // Veo 2: 5-8 seconds
-    supportedAspectRatios: ['16:9', '9:16'], // Veo 2: landscape and portrait only
-    apiEndpoint: 'https://api.gemini.google.com/v1/video/generate',
-    requiresAuth: true,
-    authType: 'api_key',
-    capabilities: {
-      supportsMultipleVideos: false, // Veo 2: single video only
-      supportsConditioningImage: true,
-      supportsNegativePrompt: true,
-      supportsResolution: false, // Veo 2: no resolution options
-      supportsFPS: false, // Veo 2: no FPS control
-      maxVideos: 1,
-      supportedResolutions: [],
-      supportedFPS: [],
-      supportedDurations: [5, 6, 7, 8] // Veo 2: 5-8 seconds
-    }
-  },
   'veo-3': {
     id: 'veo-3',
     name: 'VEO3 API',
-    description: 'Advanced video generation with enhanced capabilities and audio generation',
+    description: 'Advanced video generation with enhanced capabilities, audio generation, and two speed tiers',
     pricing: {
-      costPerSecond: 0.08, // Official pricing
+      costPerSecond: 0.08, // Average pricing between fast and quality models
       currency: 'USD',
       freeTier: {
         seconds: 20,
         description: '20 seconds free per month'
       }
     },
-    features: ['Text-to-video', 'Image-to-video', 'Audio generation', 'Enhanced prompts', 'Advanced features'],
-    maxDuration: 8, // Veo 3: 4, 6, or 8 seconds
-    supportedAspectRatios: ['16:9'], // Veo 3: landscape only
-    apiEndpoint: 'https://api.veo3gen.co/api/veo/text-to-video',
+    features: ['Text-to-video', 'Image-to-video', 'Audio generation', 'Enhanced prompts', 'Two speed tiers', 'Credit system'],
+    maxDuration: 8, // VEO3: Always 8 seconds
+    supportedAspectRatios: ['16:9'], // VEO3: landscape only
+    apiEndpoint: 'https://api.veo3gen.app/api/generate',
     requiresAuth: true,
-    authType: 'api_key',
+    authType: 'bearer',
     capabilities: {
-      supportsMultipleVideos: false, // Veo 3: single video only
+      supportsMultipleVideos: false, // VEO3: single video only
       supportsConditioningImage: true,
       supportsNegativePrompt: true,
-      supportsResolution: true, // Veo 3: 720p (default) and 1080p
-      supportsFPS: false, // Veo 3: no FPS control
+      supportsResolution: true, // VEO3: 720p and 1080p
+      supportsFPS: false, // VEO3: no FPS control
       maxVideos: 1,
       supportedResolutions: ['720p', '1080p'],
       supportedFPS: [],
-      supportedDurations: [4, 6, 8] // Veo 3: 4, 6, or 8 seconds
+      supportedDurations: [8] // VEO3: Always 8 seconds
     }
   },
   'runwayml': {
@@ -147,66 +117,6 @@ export const VIDEO_PROVIDERS: Record<string, VideoProvider> = {
       maxVideos: 1,
       supportedResolutions: ['720p', '1080p'],
       supportedFPS: [],
-      supportedDurations: [3, 4, 5]
-    }
-  },
-  'pika': {
-    id: 'pika',
-    name: 'Pika Labs 2.2',
-    description: 'Enhanced video generation with improved image integration and faster generation speeds',
-    pricing: {
-      costPerSecond: 0.03,
-      currency: 'USD',
-      freeTier: {
-        seconds: 20,
-        description: '20 seconds free per month'
-      }
-    },
-    features: ['Text-to-video', 'Image-to-video', 'Custom image integration', 'Faster generation', 'Artistic styles', 'Creative effects'],
-    maxDuration: 4,
-    supportedAspectRatios: ['16:9', '9:16', '1:1'],
-    apiEndpoint: 'https://api.pika.art/v1/generate',
-    requiresAuth: true,
-    authType: 'bearer',
-    capabilities: {
-      supportsMultipleVideos: true,
-      supportsConditioningImage: true,
-      supportsNegativePrompt: true,
-      supportsResolution: true,
-      supportsFPS: true,
-      maxVideos: 3,
-      supportedResolutions: ['720p', '1080p'],
-      supportedFPS: [24, 30],
-      supportedDurations: [3, 4]
-    }
-  },
-  'stability': {
-    id: 'stability',
-    name: 'Stability AI',
-    description: 'Open-source video generation with competitive pricing',
-    pricing: {
-      costPerSecond: 0.01,
-      currency: 'USD',
-      freeTier: {
-        seconds: 50,
-        description: '50 seconds free per month'
-      }
-    },
-    features: ['Text-to-video', 'Open source', 'Highly customizable', 'Cost-effective'],
-    maxDuration: 5,
-    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3'],
-    apiEndpoint: 'https://api.stability.ai/v2beta/image-to-video',
-    requiresAuth: true,
-    authType: 'bearer',
-    capabilities: {
-      supportsMultipleVideos: true,
-      supportsConditioningImage: true,
-      supportsNegativePrompt: true,
-      supportsResolution: true,
-      supportsFPS: true,
-      maxVideos: 4,
-      supportedResolutions: ['720p', '1080p'],
-      supportedFPS: [24, 30],
       supportedDurations: [3, 4, 5]
     }
   },

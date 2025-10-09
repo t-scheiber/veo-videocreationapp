@@ -5,7 +5,6 @@ import { VideoProviderService } from '@/lib/video-provider-service'
 const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID || 'your-project-id'
 const GOOGLE_CLOUD_LOCATION = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
 const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -27,6 +26,11 @@ export async function POST(request: NextRequest) {
     const durationSeconds = parseInt(formData.get('durationSeconds') as string)
     const provider = formData.get('provider') as string || 'veo-3'
     const conditioningImageFile = formData.get('conditioningImage') as File | null
+    
+    // VEO3-specific parameters
+    const veo3Model = formData.get('veo3Model') as string || 'veo3-fast'
+    const veo3Resolution = formData.get('veo3Resolution') as string || '720p'
+    const veo3Audio = formData.get('veo3Audio') === 'true'
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
@@ -47,21 +51,16 @@ export async function POST(request: NextRequest) {
       conditioningImage: conditioningImageFile ? {
         mimeType: conditioningImageFile.type,
         imageBytes: Buffer.from(await conditioningImageFile.arrayBuffer()).toString('base64')
-      } : undefined
+      } : undefined,
+      // VEO3-specific parameters
+      veo3Model,
+      veo3Resolution,
+      veo3Audio
     }
 
     // Get the appropriate API key based on provider
     let apiKey: string | undefined
     switch (provider) {
-      case 'veo-2':
-        // Veo 2 uses the new Gemini API with API key
-        apiKey = process.env.GOOGLE_API_KEY
-        if (!apiKey) {
-          return NextResponse.json({ 
-            error: 'Google API key required for Veo 2. Please set GOOGLE_API_KEY in your environment variables.' 
-          }, { status: 500 })
-        }
-        break
       case 'veo-3':
         // VEO3 uses its own API key
         apiKey = process.env.VEO3_API_KEY
@@ -76,12 +75,6 @@ export async function POST(request: NextRequest) {
         break
       case 'luma':
         apiKey = process.env.LUMA_API_KEY
-        break
-      case 'pika':
-        apiKey = process.env.PIKA_API_KEY
-        break
-      case 'stability':
-        apiKey = process.env.STABILITY_API_KEY
         break
       case 'openai-sora':
         apiKey = process.env.OPENAI_API_KEY
@@ -111,18 +104,9 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('authentication') || error.message.includes('credentials')) {
         return NextResponse.json(
           { 
-            error: 'Authentication failed. Please check your Google Cloud credentials. Make sure you have set up GOOGLE_APPLICATION_CREDENTIALS or run `gcloud auth login`.' 
+            error: 'Authentication failed. Please check your API credentials.' 
           },
           { status: 401 }
-        )
-      }
-      
-      if (error.message.includes('project')) {
-        return NextResponse.json(
-          { 
-            error: 'Invalid Google Cloud project. Please check your GOOGLE_CLOUD_PROJECT_ID environment variable.' 
-          },
-          { status: 400 }
         )
       }
     }

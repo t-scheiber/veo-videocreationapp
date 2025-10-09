@@ -1,32 +1,27 @@
-# Complete Setup Guide for Veo Video Generation App
+# Complete Setup Guide for AI Video Generation App
 
-This guide will help you set up both Google Cloud authentication and Google OAuth for the Veo Video Generation App.
+This guide will help you set up the AI Video Generation App with VEO3 and other video generation providers.
 
 ## Prerequisites
 
-1. A Google Cloud Project with Vertex AI API enabled
-2. Google Cloud CLI installed (optional but recommended)
-3. Node.js and npm installed
+1. Node.js and npm installed
+2. API keys for the video generation providers you want to use
+3. Google OAuth credentials (for user authentication)
 
-## Step 1: Google Cloud Project Setup
+## Step 1: Get API Keys
 
-### 1.1 Create or Select a Google Cloud Project
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Note your Project ID (you'll need this later)
+### 1.1 VEO3 API Key (Primary Provider)
+1. Visit [https://api.veo3gen.app/](https://api.veo3gen.app/)
+2. Sign up for an account
+3. Generate an API key (starts with `veo_`)
+4. Note: VEO3 offers 20 seconds free per month
 
-### 1.2 Enable Required APIs
-Enable these APIs in your Google Cloud project:
-- Vertex AI API
-- Google+ API (for OAuth)
+### 1.2 Other Provider API Keys (Optional)
+- **RunwayML**: [https://runwayml.com/](https://runwayml.com/) - 125s free/month
+- **Luma AI**: [https://lumalabs.ai/](https://lumalabs.ai/) - 30s free/month  
+- **OpenAI Sora**: [https://platform.openai.com/](https://platform.openai.com/) - 10s free/month
 
-You can enable them in the [Google Cloud Console](https://console.cloud.google.com/apis/library) or using the CLI:
-
-```bash
-gcloud services enable aiplatform.googleapis.com
-gcloud services enable vertex.googleapis.com
-gcloud services enable plus.googleapis.com
-```
+> **Note**: Pika Labs 2.2 is temporarily disabled while awaiting API access approval.
 
 ## Step 2: Google OAuth Setup
 
@@ -45,53 +40,23 @@ gcloud services enable plus.googleapis.com
 7. Click **"Create"**
 8. Copy the **Client ID** and **Client Secret** (you'll need these for your `.env.local`)
 
-## Step 3: Google Cloud Authentication Setup
-
-Choose one of these methods:
-
-### Method A: Application Default Credentials (Recommended for Local Development)
-
-1. Install Google Cloud CLI:
-   ```bash
-   # Windows (using PowerShell)
-   (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
-   & $env:Temp\GoogleCloudSDKInstaller.exe
-   ```
-
-2. Authenticate with Google Cloud:
-   ```bash
-   gcloud auth login
-   gcloud auth application-default login
-   ```
-
-3. Set your project ID:
-   ```bash
-   gcloud config set project YOUR_PROJECT_ID
-   ```
-
-### Method B: Service Account Key (Recommended for Production)
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Navigate to **IAM & Admin > Service Accounts**
-3. Create a new service account or use an existing one
-4. Grant the service account the **"Vertex AI User"** role
-5. Create a new key (JSON format) and download it
-6. Place the key file in your project directory
-
-## Step 4: Environment Configuration
+## Step 3: Environment Configuration
 
 Create a `.env.local` file in your project root with the following content:
 
 ```env
-# Google Cloud Configuration
-GOOGLE_CLOUD_PROJECT_ID=your-actual-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
+# VEO3 API Key (Primary Provider)
+VEO3_API_KEY=veo_your-veo3-api-key-here
 
-# For Method A (Application Default Credentials) - no additional config needed
-# For Method B (Service Account) - uncomment and set the path:
-# GOOGLE_APPLICATION_CREDENTIALS=./path/to/your-service-account-key.json
+# Other Provider API Keys (Optional - only add the ones you want to use)
+RUNWAYML_API_KEY=your-runwayml-api-key-here
+LUMA_API_KEY=your-luma-api-key-here
+OPENAI_API_KEY=your-openai-api-key-here
 
-# Auth.js v5 Configuration
+# Pika Labs 2.2 is temporarily disabled (awaiting API access)
+# PIKA_API_KEY=your-pika-api-key-here
+
+# Auth.js Configuration
 AUTH_SECRET=your-auth-secret-key-here
 
 # Google OAuth Credentials (from Step 2.1)
@@ -112,7 +77,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 openssl rand -hex 32
 ```
 
-## Step 5: Install Dependencies and Run
+## Step 4: Install Dependencies and Run
 
 1. Install dependencies:
    ```bash
@@ -126,11 +91,11 @@ openssl rand -hex 32
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Step 6: Testing the Setup
+## Step 5: Testing the Setup
 
 1. **Test Authentication**: You should see a "Sign in with Google" button
 2. **Sign In**: Click the button and complete the Google OAuth flow
-3. **Test Video Generation**: Try generating a video with a simple prompt
+3. **Test Video Generation**: Try generating a video with VEO3 using a simple prompt
 
 ## Troubleshooting
 
@@ -140,22 +105,21 @@ openssl rand -hex 32
    - Make sure you're signed in with Google
    - Check that your OAuth credentials are correct
 
-2. **"Unable to authenticate your request" (Google Cloud)**
-   - Verify your Google Cloud project ID is correct
-   - Make sure you've run `gcloud auth application-default login`
-   - Check that the Vertex AI API is enabled
+2. **"VEO3 API key required" error**
+   - Make sure you've added your VEO3 API key to `.env.local`
+   - Verify the API key starts with `veo_`
 
 3. **"Invalid client" (OAuth)**
    - Verify your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are correct
    - Check that the redirect URI is properly configured
 
-4. **"Could not load the default credentials"**
-   - Ensure your `.env.local` file has the correct project ID
-   - For service account method, verify the key file path is correct
+4. **Video generation fails**
+   - Check that your VEO3 API key is valid and has credits
+   - Try a simpler prompt first
+   - Check the browser console for detailed error messages
 
 ### Getting Help:
 
-- [Google Cloud Authentication Documentation](https://cloud.google.com/docs/authentication)
-- [Vertex AI Documentation](https://cloud.google.com/vertex-ai/docs)
+- [VEO3 API Documentation](https://api.veo3gen.app/)
 - [Auth.js Documentation](https://authjs.dev/)
 - [Google OAuth Documentation](https://developers.google.com/identity/protocols/oauth2)

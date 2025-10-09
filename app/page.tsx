@@ -13,7 +13,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Generate videos with Veo
+              Generate Videos with AI
             </h1>
             <p className="text-gray-300 text-lg">
               Create stunning AI-generated videos with advanced control

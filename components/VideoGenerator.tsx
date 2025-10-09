@@ -23,6 +23,9 @@ export default function VideoGenerator() {
   const [durationSeconds, setDurationSeconds] = useState(5)
   const [conditioningImage, setConditioningImage] = useState<File | null>(null)
   const [provider, setProvider] = useState('veo-3')
+  const [veo3Model, setVeo3Model] = useState('veo3-fast')
+  const [veo3Resolution, setVeo3Resolution] = useState('720p')
+  const [veo3Audio, setVeo3Audio] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [message, setMessage] = useState('')
   const [videos, setVideos] = useState<string[]>([])
@@ -111,6 +114,13 @@ export default function VideoGenerator() {
       formData.append('aspectRatio', aspectRatio)
       formData.append('durationSeconds', durationSeconds.toString())
       formData.append('provider', provider)
+      
+      // Add VEO3-specific parameters
+      if (provider === 'veo-3') {
+        formData.append('veo3Model', veo3Model)
+        formData.append('veo3Resolution', veo3Resolution)
+        formData.append('veo3Audio', veo3Audio.toString())
+      }
       
       if (conditioningImage) {
         formData.append('conditioningImage', conditioningImage)
@@ -429,8 +439,96 @@ export default function VideoGenerator() {
           </div>
         )}
         
-        {/* Resolution - Only show if supported */}
-        {selectedProvider?.capabilities.supportsResolution && selectedProvider?.capabilities.supportedResolutions && selectedProvider.capabilities.supportedResolutions.length > 0 && (
+        {/* VEO3 Model Selection - Only show for VEO3 */}
+        {provider === 'veo-3' && (
+          <div className="space-y-3">
+            <label htmlFor="veo3-model" className="text-sm font-semibold text-gray-200 block">
+              VEO3 Model
+            </label>
+            <div className="relative">
+              <select
+                id="veo3-model"
+                value={veo3Model}
+                onChange={(e) => setVeo3Model(e.target.value)}
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+                aria-label="VEO3 model selection"
+              >
+                <option value="veo3-fast" className="bg-gray-800 text-white">
+                  VEO3 Fast (1-3 min, 10-15 credits)
+                </option>
+                <option value="veo3-quality" className="bg-gray-800 text-white">
+                  VEO3 Quality (2-5 min, 20-30 credits)
+                </option>
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-xs text-gray-400">
+              {veo3Model === 'veo3-fast' 
+                ? 'Faster generation with good quality' 
+                : 'Higher quality with longer generation time'
+              }
+            </p>
+          </div>
+        )}
+
+        {/* VEO3 Resolution - Only show for VEO3 */}
+        {provider === 'veo-3' && (
+          <div className="space-y-3">
+            <label htmlFor="veo3-resolution" className="text-sm font-semibold text-gray-200 block">
+              Resolution
+            </label>
+            <div className="relative">
+              <select
+                id="veo3-resolution"
+                value={veo3Resolution}
+                onChange={(e) => setVeo3Resolution(e.target.value)}
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 pr-10 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 backdrop-blur-sm appearance-none cursor-pointer"
+                aria-label="VEO3 resolution"
+              >
+                <option value="720p" className="bg-gray-800 text-white">720p (Standard)</option>
+                <option value="1080p" className="bg-gray-800 text-white">1080p (HD)</option>
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* VEO3 Audio - Only show for VEO3 */}
+        {provider === 'veo-3' && (
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-200 block">
+              Audio Generation
+            </label>
+            <div className="flex items-center space-x-3">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={veo3Audio}
+                  onChange={(e) => setVeo3Audio(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <span className="text-sm text-gray-300">Generate audio</span>
+              </label>
+            </div>
+            <p className="text-xs text-gray-400">
+              {veo3Audio 
+                ? 'AI will generate audio for your video (+5 credits)' 
+                : 'Video will be generated without audio'
+              }
+            </p>
+          </div>
+        )}
+
+        {/* Resolution - Only show if supported and not VEO3 */}
+        {selectedProvider?.capabilities.supportsResolution && selectedProvider?.capabilities.supportedResolutions && selectedProvider.capabilities.supportedResolutions.length > 0 && provider !== 'veo-3' && (
           <div className="space-y-3">
             <label htmlFor="resolution" className="text-sm font-semibold text-gray-200 block">
               Resolution
